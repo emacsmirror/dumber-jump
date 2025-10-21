@@ -37,4 +37,7 @@ setup:
 actions-test: install setup unit
 
 local:
+	${ERT} -l dumber-jump.el -l test/dumber-jump-test.el -f dumber-jump-run-fast-tests-batch-and-exit 
+
+local_all: # 10x slower
 	${ERT} -l dumber-jump.el -l test/dumber-jump-test.el -f ert-run-tests-batch-and-exit 

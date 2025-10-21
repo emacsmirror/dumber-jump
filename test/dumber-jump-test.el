@@ -5,6 +5,9 @@
 (require 'el-mock)
 ;;; Code:
 
+(defun dumber-jump-run-fast-tests-batch-and-exit ()
+  (ert-run-tests-batch-and-exit '(not (tag slow))))
+
 ;; TODO: nuke me: this should be using (xref-backend-definitions 'dumber-jump nil)
 (defun dumber-jump-go (&optional use-tooltip prefer-external prompt)
   (interactive "P")
@@ -216,22 +219,23 @@ Optionally pass t for RUN-NOT-TESTS to see a list of all failed rules"
    (dumber-jump-get-point-symbol)))
 
 (ert-deftest dumber-jump-test-rg-rules-test ()
+  :tags '(slow)
   (let ((rule-failures (dumber-jump-test-rg-rules)))
     (dumber-jump-output-rule-test-failures rule-failures)
     (should (= (length rule-failures) 0))))
 
-(when (dumber-jump-rg-installed?)
-  (ert-deftest dumber-jump-test-rg-rules-not-test () ;; :not tests
-    (let ((rule-failures (dumber-jump-test-rg-rules t)))
-      (dumber-jump-output-rule-test-failures rule-failures)
-      (should (= (length rule-failures) 0)))))
+(ert-deftest dumber-jump-test-rg-rules-not-test () ;; :not tests
+  :tags '(slow)
+  (let ((rule-failures (dumber-jump-test-rg-rules t)))
+    (dumber-jump-output-rule-test-failures rule-failures)
+    (should (= (length rule-failures) 0))))
 
-(when (dumber-jump-rg-installed?)
-  (ert-deftest dumber-jump-test-rg-rules-fail-test ()
-    (let* ((bad-rule '(:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "elisp" :regex "\\\(defvarJJJ\\b\\s*" :tests ("(defvar test ")))
-           (dumber-jump-find-rules (cons bad-rule dumber-jump-find-rules))
-           (rule-failures (dumber-jump-test-rg-rules)))
-      (should (= (length rule-failures) 1)))))
+(ert-deftest dumber-jump-test-rg-rules-fail-test ()
+  :tags '(slow)
+  (let* ((bad-rule '(:type "variable" :supports ("ag" "grep" "rg" "git-grep") :language "elisp" :regex "\\\(defvarJJJ\\b\\s*" :tests ("(defvar test ")))
+         (dumber-jump-find-rules (cons bad-rule dumber-jump-find-rules))
+         (rule-failures (dumber-jump-test-rg-rules)))
+    (should (= (length rule-failures) 1))))
 
 (ert-deftest dumber-jump-match-test ()
   (should (not (dumber-jump-re-match nil "asdf")))
