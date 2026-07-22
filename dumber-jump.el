@@ -2177,14 +2177,6 @@ Ffrom the ROOT project CONFIG-FILE."
   "Take list of REGEXES and populate the LOOK-FOR target and return that list."
   (--map (dumber-jump-populate-regex it look-for variant) regexes))
 
-(defun dumber-jump-rg-search-candidates (look-for proj)
-  "Run the shell command 'rg -l look-for proj' and return the output
-with newlines converted to spaces.  as searching just for the string
-is significantly faster than searching with the full regexp"
-  (let* ((command (format "rg -l %s %s" look-for proj))
-         (output (shell-command-to-string command)))
-    (replace-regexp-in-string "\n" " " output)))
-
 (defun dumber-jump-generate-rg-command (look-for _cur-file proj regexes lang exclude-paths)
   "Generate the rg response based on the needle LOOK-FOR in the directory PROJ."
   (let* ((filled-regexes (dumber-jump-populate-regexes look-for regexes 'rg))
@@ -2200,7 +2192,7 @@ is significantly faster than searching with the full regexp"
          (regex-args (shell-quote-argument (s-join "|" filled-regexes))))
     (if (= (length regexes) 0)
         ""
-      (dumber-jump-concat-command cmd exclude-args regex-args (dumber-jump-rg-search-candidates look-for proj)))))
+      (dumber-jump-concat-command cmd exclude-args regex-args proj))))
 
 (defun dumber-jump-concat-command (&rest parts)
   "Concat the PARTS of a command if each part has a length."
